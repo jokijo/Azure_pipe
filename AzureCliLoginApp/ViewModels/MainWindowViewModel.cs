@@ -131,7 +131,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
         try
         {
-            // Get all VMs in JSON format
+            // Get all VMs in JSON format that the user has access to
+            // Azure CLI naturally filters results based on user permissions
             var output = await ExecuteAzCommandWithOutput(
                 "az vm list --query \"[].{name:name, resourceGroup:resourceGroup, location:location, id:id}\" -o json"
             );
@@ -141,23 +142,15 @@ public partial class MainWindowViewModel : ViewModelBase
                 var vms = JsonSerializer.Deserialize<VirtualMachine[]>(output);
                 if (vms != null)
                 {
-                    // Check write permissions for each VM
                     foreach (var vm in vms)
                     {
-                        // Check if user has permission to modify the VM (specifically for inbound port rules)
-                        // We check for write access to the VM's network security group or NIC
-                        var hasPermission = await CheckResourcePermission(vm.Id, "Microsoft.Network/networkInterfaces/write");
-                        
-                        if (hasPermission)
-                        {
-                            VirtualMachines.Add(vm);
-                            AppendToLog($"  ✓ {vm.Name} (RG: {vm.ResourceGroup})\n");
-                        }
+                        VirtualMachines.Add(vm);
+                        AppendToLog($"  ✓ {vm.Name} (RG: {vm.ResourceGroup})\n");
                     }
                 }
             }
 
-            AppendToLog($"Found {VirtualMachines.Count} VMs with edit permissions.\n");
+            AppendToLog($"Found {VirtualMachines.Count} VMs accessible to the user.\n");
         }
         catch (Exception ex)
         {
@@ -172,7 +165,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
         try
         {
-            // Get all NSGs in JSON format
+            // Get all NSGs in JSON format that the user has access to
+            // Azure CLI naturally filters results based on user permissions
             var output = await ExecuteAzCommandWithOutput(
                 "az network nsg list --query \"[].{name:name, resourceGroup:resourceGroup, location:location, id:id}\" -o json"
             );
@@ -182,46 +176,19 @@ public partial class MainWindowViewModel : ViewModelBase
                 var nsgs = JsonSerializer.Deserialize<NetworkSecurityGroup[]>(output);
                 if (nsgs != null)
                 {
-                    // Check write permissions for each NSG
                     foreach (var nsg in nsgs)
                     {
-                        // Check if user has permission to modify NSG rules
-                        var hasPermission = await CheckResourcePermission(nsg.Id, "Microsoft.Network/networkSecurityGroups/write");
-                        
-                        if (hasPermission)
-                        {
-                            NetworkSecurityGroups.Add(nsg);
-                            AppendToLog($"  ✓ {nsg.Name} (RG: {nsg.ResourceGroup})\n");
-                        }
+                        NetworkSecurityGroups.Add(nsg);
+                        AppendToLog($"  ✓ {nsg.Name} (RG: {nsg.ResourceGroup})\n");
                     }
                 }
             }
 
-            AppendToLog($"Found {NetworkSecurityGroups.Count} NSGs with edit permissions.\n");
+            AppendToLog($"Found {NetworkSecurityGroups.Count} NSGs accessible to the user.\n");
         }
         catch (Exception ex)
         {
             AppendToLog($"[ERROR] Failed to fetch NSGs: {ex.Message}\n");
-        }
-    }
-
-    private async Task<bool> CheckResourcePermission(string resourceId, string action)
-    {
-        try
-        {
-            // Use Azure CLI to check permissions - if the command succeeds, user has permission
-            // We use a simple approach: try to show the resource. If it fails with permission error, return false
-            var checkCommand = $"az resource show --ids \"{resourceId}\" --query id -o tsv 2>&1";
-            var output = await ExecuteAzCommandWithOutput(checkCommand);
-            
-            // If we got the resource ID back, user has at least read access
-            // For simplicity, we assume read access implies potential write access for resources they can see
-            // A more thorough check would use: az role assignment list
-            return !string.IsNullOrWhiteSpace(output) && !output.Contains("AuthorizationFailed");
-        }
-        catch
-        {
-            return false;
         }
     }
 
