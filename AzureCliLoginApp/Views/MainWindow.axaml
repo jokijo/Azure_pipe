@@ -1,0 +1,90 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AzureCliLoginApp.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+        x:Class="AzureCliLoginApp.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Azure CLI Login"
+        Width="600" Height="500">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" 
+                   Text="Azure CLI Login" 
+                   FontSize="24" 
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,20"/>
+
+        <!-- Login Type Selection -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,20">
+            <TextBlock Text="Select Login Method:" FontWeight="SemiBold" Margin="0,0,0,10"/>
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Button Content="Device Code Login" 
+                        Command="{Binding LoginWithDeviceCodeCommand}"
+                        IsEnabled="{Binding !IsLoginInProgress}"
+                        Width="150"/>
+                <Button Content="Interactive Login" 
+                        Command="{Binding LoginInteractiveCommand}"
+                        IsEnabled="{Binding !IsLoginInProgress}"
+                        Width="150"/>
+                <Button Content="Check Status" 
+                        Command="{Binding CheckLoginStatusCommand}"
+                        IsEnabled="{Binding !IsLoginInProgress}"
+                        Width="120"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Status -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+            <TextBlock Text="Status:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBlock Text="{Binding StatusMessage}" 
+                       TextWrapping="Wrap"
+                       Foreground="{Binding StatusColor}"/>
+        </StackPanel>
+
+        <!-- Output Log -->
+        <Border Grid.Row="3" 
+                BorderBrush="Gray" 
+                BorderThickness="1" 
+                CornerRadius="5"
+                Padding="10"
+                Margin="0,0,0,10">
+            <ScrollViewer>
+                <TextBlock Text="{Binding OutputLog}" 
+                           TextWrapping="Wrap"
+                           FontFamily="Consolas,Courier New,monospace"
+                           FontSize="12"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Clear and Logout Buttons -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+            <Button Content="Clear Output" 
+                    Command="{Binding ClearOutputCommand}"
+                    Width="120"/>
+            <Button Content="Logout" 
+                    Command="{Binding LogoutCommand}"
+                    IsEnabled="{Binding !IsLoginInProgress}"
+                    Width="120"/>
+        </StackPanel>
+    </Grid>
+
+</Window>
