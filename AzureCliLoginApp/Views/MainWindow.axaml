@@ -3,12 +3,12 @@
         xmlns:vm="using:AzureCliLoginApp.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
         x:Class="AzureCliLoginApp.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="Azure CLI Login"
-        Width="600" Height="500">
+        Width="900" Height="600">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -17,6 +17,12 @@
     </Design.DataContext>
 
     <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -26,7 +32,7 @@
         </Grid.RowDefinitions>
 
         <!-- Title -->
-        <TextBlock Grid.Row="0" 
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
                    Text="Azure CLI Login" 
                    FontSize="24" 
                    FontWeight="Bold"
@@ -34,49 +40,118 @@
                    Margin="0,0,0,20"/>
 
         <!-- Login Type Selection -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,20">
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,20">
             <TextBlock Text="Select Login Method:" FontWeight="SemiBold" Margin="0,0,0,10"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
                 <Button Content="Device Code Login" 
                         Command="{Binding LoginWithDeviceCodeCommand}"
                         IsEnabled="{Binding !IsLoginInProgress}"
-                        Width="150"/>
+                        Width="140"/>
                 <Button Content="Interactive Login" 
                         Command="{Binding LoginInteractiveCommand}"
                         IsEnabled="{Binding !IsLoginInProgress}"
-                        Width="150"/>
+                        Width="130"/>
                 <Button Content="Check Status" 
                         Command="{Binding CheckLoginStatusCommand}"
                         IsEnabled="{Binding !IsLoginInProgress}"
-                        Width="120"/>
+                        Width="110"/>
+                <Button Content="Refresh Resources" 
+                        Command="{Binding RefreshResourcesCommand}"
+                        IsEnabled="{Binding !IsLoginInProgress}"
+                        Width="130"/>
             </StackPanel>
         </StackPanel>
 
         <!-- Status -->
-        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,10">
             <TextBlock Text="Status:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <TextBlock Text="{Binding StatusMessage}" 
                        TextWrapping="Wrap"
                        Foreground="{Binding StatusColor}"/>
         </StackPanel>
 
-        <!-- Output Log -->
-        <Border Grid.Row="3" 
+        <!-- Left Column: Output Log -->
+        <Border Grid.Row="3" Grid.Column="0"
                 BorderBrush="Gray" 
                 BorderThickness="1" 
                 CornerRadius="5"
                 Padding="10"
                 Margin="0,0,0,10">
-            <ScrollViewer>
-                <TextBlock Text="{Binding OutputLog}" 
-                           TextWrapping="Wrap"
-                           FontFamily="Consolas,Courier New,monospace"
-                           FontSize="12"/>
-            </ScrollViewer>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Text="Command Output" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <ScrollViewer Grid.Row="1">
+                    <TextBlock Text="{Binding OutputLog}" 
+                               TextWrapping="Wrap"
+                               FontFamily="Consolas,Courier New,monospace"
+                               FontSize="11"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- Right Column: Resources -->
+        <Border Grid.Row="3" Grid.Column="2"
+                BorderBrush="Gray" 
+                BorderThickness="1" 
+                CornerRadius="5"
+                Padding="10"
+                Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Virtual Machines Section -->
+                <TextBlock Grid.Row="0" Text="Virtual Machines" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <ScrollViewer Grid.Row="1" Margin="0,0,0,10">
+                    <ItemsControl ItemsSource="{Binding VirtualMachines}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="5">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"/>
+                                        <TextBlock Text="{Binding ResourceGroup, StringFormat='RG: {0}'}" 
+                                                   FontSize="10" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding Location, StringFormat='Location: {0}'}" 
+                                                   FontSize="10" Foreground="Gray"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Network Security Groups Section -->
+                <TextBlock Grid.Row="2" Text="Network Security Groups" FontWeight="SemiBold" Margin="0,10,0,5"/>
+                <ScrollViewer Grid.Row="3">
+                    <ItemsControl ItemsSource="{Binding NetworkSecurityGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="5">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"/>
+                                        <TextBlock Text="{Binding ResourceGroup, StringFormat='RG: {0}'}" 
+                                                   FontSize="10" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding Location, StringFormat='Location: {0}'}" 
+                                                   FontSize="10" Foreground="Gray"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </Border>
 
         <!-- Clear and Logout Buttons -->
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
             <Button Content="Clear Output" 
                     Command="{Binding ClearOutputCommand}"
                     Width="120"/>
