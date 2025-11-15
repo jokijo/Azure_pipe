@@ -9,9 +9,19 @@ A cross-platform desktop application built with Avalonia UI and C# that provides
   - Interactive Login - Standard browser-based authentication
   - Check Status - Verify current Azure CLI login status
 
+- **Resource Discovery**: Automatically fetch and display Azure resources after login
+  - Virtual Machines (VMs) - Shows all VMs the user has access to
+  - Network Security Groups (NSGs) - Shows all NSGs the user has access to
+  - Resources are automatically filtered based on user's Azure RBAC permissions
+  - Manual refresh option available
+
 - **Real-time Output**: View command output in real-time as the Azure CLI executes commands
 
 - **Status Indicators**: Color-coded status messages (blue for info, orange for in-progress, green for success, red for errors)
+
+- **Split-Panel Interface**: 
+  - Left panel displays command output and execution logs
+  - Right panel displays discovered Azure resources (VMs and NSGs)
 
 - **Output Management**: Clear output log and logout functionality
 
@@ -60,9 +70,14 @@ dotnet publish -c Release -r osx-x64 --self-contained
    - **Device Code Login**: Follow the instructions in the output to authenticate using a device code
    - **Interactive Login**: Opens your default browser for authentication
    - **Check Status**: Displays current Azure account information
-3. View the command output in the log area
-4. Use "Clear Output" to clear the log
-5. Use "Logout" to sign out from Azure CLI
+3. After successful login, the application automatically fetches and displays:
+   - Virtual Machines (VMs) you have access to
+   - Network Security Groups (NSGs) you have access to
+4. View the command output in the left panel
+5. View your accessible Azure resources in the right panel
+6. Use "Refresh Resources" to manually update the resource list
+7. Use "Clear Output" to clear the command log
+8. Use "Logout" to sign out from Azure CLI
 
 ## Architecture
 
