@@ -318,11 +318,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task FetchUserIpAddress()
     {
-        AppendToLog("Fetching user's public IPv4 address...\n");
+        AppendToLog("Fetching user's IPv4 address...\n");
         
         try
         {
-            // Try multiple methods to get the public IP address
+            // Try multiple methods to get the local IP address
             string? ipAddress = null;
             
             // Method 1: Try using hostname -I (works on Linux)
@@ -332,7 +332,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 var ips = hostOutput.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 if (ips.Length > 0)
                 {
-                    ipAddress = ips[0]; // First IP is usually the primary one
+                    ipAddress = ips[0]; // Get the first IP address from the list
                 }
             }
             
