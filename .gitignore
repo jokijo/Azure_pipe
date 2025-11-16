@@ -21,6 +21,7 @@ bld/
 
 # Visual Studio cache/options directory
 .vs/
+Apipe.sln
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
